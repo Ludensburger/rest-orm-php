@@ -41,7 +41,8 @@ foreach ($routes as $route) {
 
     // Get all users
     $users = $userRepository->table('users')->getAll();
-    echo "All users:" . print_r($users, true);
+    header('Content-Type: application/json');
+    echo json_encode($users, JSON_PRETTY_PRINT);
 
     // Get a user by ID
     // $user = $userRepository->table('users')->select()->where('id', 3)->get();
@@ -70,4 +71,6 @@ $response = $router->dispatch();
 // Send the response
 http_response_code($response->getStatusCode());
 header('Content-Type: application/json');
-echo $response->getBody();
+
+// show the response body no formatting
+// echo $response->getBody();
