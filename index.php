@@ -1,10 +1,14 @@
 <?php
 require_once 'init.php';
 
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+
 $host = 'localhost';
 $user = 'root';
 $password = 'root';
 $dbname = 'rest_api';
+$secretKey = '8f42a73d5c4b2a1e9f6g7h8j9k0l1m2n3o4p5q6r7s8t9u0v'; // Your generated secure key
 
 // Initialize the user repository with connection details
 $userRepository = new UserRepository($host, $user, $password, $dbname);
@@ -14,6 +18,11 @@ $db = new Database($host, $user, $password, $dbname);
 
 // Initialize the request object
 $request = new Request();
+
+// Initialize auth components
+$authController = new AuthController($userRepository, $request, $secretKey);
+$authMiddleware = new AuthMiddleware($userRepository, $secretKey);
+
 
 // Initialize the user controller with dependencies
 $controller = new UserController($userRepository, $request);
@@ -26,7 +35,8 @@ $router = new Router($request, new RouteMatcher());
 
 // Register routes
 foreach ($routes as $route) {
-    $router->addRoute($route['method'], $route['path'], $route['handler']);
+    $middleware = isset($route['middleware']) ? $route['middleware'] : null;
+    $router->addRoute($route['method'], $route['path'], $route['handler'], $middleware);
 }
 
 
@@ -73,4 +83,4 @@ http_response_code($response->getStatusCode());
 header('Content-Type: application/json');
 
 // show the response body no formatting
-// echo $response->getBody();
+echo $response->getBody();
