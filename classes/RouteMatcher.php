@@ -8,6 +8,7 @@ class RouteMatcher {
             if ($route['method'] === $requestMethod && preg_match($pattern, $requestPath, $matches)) {
                 return [
                     'handler' => $route['handler'],
+                    'middleware' => isset($route['middleware']) ? $route['middleware'] : null,
                     'params' => array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY)
                 ];
             }

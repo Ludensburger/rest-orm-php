@@ -9,11 +9,12 @@ class Router {
         $this->routeMatcher = $routeMatcher;
     }
 
-    public function addRoute($method, $path, $handler) {
+    public function addRoute($method, $path, $handler, $middleware = null) {
         $this->routes[] = [
             'method' => strtoupper($method),
             'path' => $path,
-            'handler' => $handler
+            'handler' => $handler,
+            'middleware' => $middleware
         ];
     }
 
@@ -25,7 +26,15 @@ class Router {
         );
     
         if ($match) {
-            return call_user_func_array($match['handler'], array_values($match['params']));
+            if (isset($match['middleware']) && $match['middleware'] !== null) {
+                // Apply middleware
+                $handler = call_user_func($match['middleware'], function($tokenData = null) use ($match) {
+                    return call_user_func_array($match['handler'], array_values($match['params']));
+                });
+                return call_user_func($handler);
+            } else {
+                return call_user_func_array($match['handler'], array_values($match['params']));
+            }
         }
     
         error_log("No route matched for " . $this->request->getMethod() . " " . $this->request->getPath());

@@ -7,6 +7,11 @@ class UserRepository implements DataRepositoryInterface {
 
     public function __construct(string $host, string $user, string $password, string $dbname) {
         try {
+            // Check if PDO MySQL driver is available
+            if (!extension_loaded('pdo_mysql')) {
+                die("PDO MySQL driver is not installed or enabled. Please check your PHP configuration.");
+            }
+
             $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -17,6 +22,7 @@ class UserRepository implements DataRepositoryInterface {
             die("Database connection failed in UserRepository: " . $e->getMessage());
         }
     }
+
 
     public function table(string $tableName): object {
         $this->tableName = $tableName;
